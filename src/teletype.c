@@ -11,6 +11,7 @@
 #include "ii.h"
 #include "ops/op.h"
 #include "ops/maths.h"
+#include "ops/random.h"
 #include "euclidean/euclidean.h"
 
 #ifdef SIM
@@ -735,9 +736,6 @@ void mod_L(tele_command_t *c) {
 /////////////////////////////////////////////////////////////////
 // OPS //////////////////////////////////////////////////////////
 
-static void op_RAND(teletype_t* t);
-static void op_RRAND(teletype_t* t);
-static void op_TOSS(teletype_t* t);
 static void op_QT(teletype_t* t);
 static void op_AVG(teletype_t* t);
 static void op_NZ(teletype_t* t);
@@ -838,34 +836,6 @@ static const tele_op_t tele_ops[OPS] = {
 	MAKEOP(ER, 3, 1,"EUCLIDEAN RHYTHMS")
 };
 
-static void op_RAND(teletype_t *t) { 
-	int16_t a = pop();
-	if(a == -1)
-		push(0);
-	else
-		push(rand() % (a+1));
-	
-}
-static void op_RRAND(teletype_t *t) {
-	int16_t a, b, min, max, range;
-	a = pop();
-	b = pop();
-	if(a < b) {
-		min = a;
-		max = b; 
-	}
-	else {
-		min = b;
-		max = a;
-	}
-	range = max - min + 1;
-	if(range == 0) push(a);
-	else
-		push(rand() % range + min);
-}
-static void op_TOSS(teletype_t *t) {
-	push(rand() & 1);
-}
 static void op_QT(teletype_t *t) {
 	// this rounds negative numbers rather than quantize (choose closer)
 	int16_t a, b, c, d, e;
