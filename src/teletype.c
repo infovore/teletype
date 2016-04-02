@@ -736,8 +736,6 @@ void mod_L(tele_command_t *c) {
 /////////////////////////////////////////////////////////////////
 // OPS //////////////////////////////////////////////////////////
 
-static void op_QT(teletype_t* t);
-static void op_AVG(teletype_t* t);
 static void op_NZ(teletype_t* t);
 static void op_EZ(teletype_t* t);
 static void op_TR_TOG(teletype_t* t);
@@ -757,8 +755,6 @@ static void op_P_POP(teletype_t* t);
 static void op_PN(teletype_t* t);
 static void op_TR_PULSE(teletype_t* t);
 static void op_II(teletype_t* t);
-static void op_RSH(teletype_t* t);
-static void op_LSH(teletype_t* t);
 static void op_S_L(teletype_t* t);
 static void op_CV_SET(teletype_t* t);
 static void op_EXP(teletype_t* t);
@@ -836,22 +832,6 @@ static const tele_op_t tele_ops[OPS] = {
 	MAKEOP(ER, 3, 1,"EUCLIDEAN RHYTHMS")
 };
 
-static void op_QT(teletype_t *t) {
-	// this rounds negative numbers rather than quantize (choose closer)
-	int16_t a, b, c, d, e;
-	b = pop();
-	a = pop();
-
-	c = b / a;
-	d = c * a;
-	e = (c+1) * a;
-
-	if(abs(b-d) < abs(b-e)) push(d);
-	else push(e);
-}
-static void op_AVG(teletype_t *t) {
-	push((pop() + pop()) >> 1);
-}
 static void op_NZ(teletype_t *t) { 
 	push(pop() != 0);
 }
@@ -1052,12 +1032,6 @@ static void op_II(teletype_t *t) {
 	int16_t a = pop();
 	int16_t b = pop();
 	update_ii(a,b);
-}
-static void op_RSH(teletype_t *t) { 
-	push(pop() >> pop());
-}
-static void op_LSH(teletype_t *t) { 
-	push(pop() << pop());
 }
 static void op_S_L(teletype_t *t) { 
 	push(tele_stack_top);

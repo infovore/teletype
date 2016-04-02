@@ -8,6 +8,8 @@ void op_SUB(teletype_t* t);
 void op_MUL(teletype_t* t);
 void op_DIV(teletype_t* t);
 void op_MOD(teletype_t* t);
+void op_RSH(teletype_t* t);
+void op_LSH(teletype_t* t);
 
 void op_EQ(teletype_t* t);
 void op_NE(teletype_t* t);
@@ -18,5 +20,8 @@ void op_MIN(teletype_t* t);
 void op_MAX(teletype_t* t);
 void op_LIM(teletype_t* t);
 void op_WRAP(teletype_t* t);
+
+void op_QT(teletype_t* t);
+void op_AVG(teletype_t* t);
 
 #endif

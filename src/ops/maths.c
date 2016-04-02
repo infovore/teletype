@@ -1,5 +1,9 @@
 #include "maths.h"
+
+#include <stdlib.h>
+
 #include "state.h"
+
 
 void op_ADD(teletype_t *t) {
 	tt_push(t, tt_pop(t) + tt_pop(t));
@@ -19,6 +23,14 @@ void op_DIV(teletype_t *t) {
 
 void op_MOD(teletype_t *t) {
 	tt_push(t, tt_pop(t) % tt_pop(t));
+}
+
+void op_RSH(teletype_t *t) {
+	tt_push(t, tt_pop(t) >> tt_pop(t));
+}
+
+void op_LSH(teletype_t *t) {
+	tt_push(t, tt_pop(t) << tt_pop(t));
 }
 
 
@@ -77,3 +89,23 @@ void op_WRAP(teletype_t *t) {
 	}
 	tt_push(t, i);
 }
+
+
+void op_QT(teletype_t *t) {
+	// this rounds negative numbers rather than quantize (choose closer)
+	int16_t b = tt_pop(t);
+	int16_t a = tt_pop(t);
+
+	int16_t c = b / a;
+	int16_t d = c * a;
+	int16_t e = (c+1) * a;
+
+	if (abs(b-d) < abs(b-e)) tt_push(t, d);
+	else tt_push(t, e);
+}
+
+void op_AVG(teletype_t *t) {
+	tt_push(t, (tt_pop(t) + tt_pop(t)) >> 1);
+}
+
+
