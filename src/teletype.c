@@ -9,6 +9,8 @@
 #include "table.h"
 #include "util.h"
 #include "ii.h"
+#include "ops/op.h"
+#include "ops/maths.h"
 #include "euclidean/euclidean.h"
 
 #ifdef SIM
@@ -37,7 +39,7 @@ const char * tele_error(error_t e) {
 	return errordesc[e];
 }
 
-// static char dbg[32];
+static char dbg[32];
 static char pcmd[32];
 
 teletype_t state;
@@ -733,60 +735,47 @@ void mod_L(tele_command_t *c) {
 /////////////////////////////////////////////////////////////////
 // OPS //////////////////////////////////////////////////////////
 
-static void op_ADD(void);
-static void op_SUB(void);
-static void op_MUL(void);
-static void op_DIV(void);
-static void op_MOD(void);
-static void op_RAND(void);
-static void op_RRAND(void);
-static void op_TOSS(void);
-static void op_MIN(void);
-static void op_MAX(void);
-static void op_LIM(void);
-static void op_WRAP(void);
-static void op_QT(void);
-static void op_AVG(void);
-static void op_EQ(void);
-static void op_NE(void);
-static void op_LT(void);
-static void op_GT(void);
-static void op_NZ(void);
-static void op_EZ(void);
-static void op_TR_TOG(void);
-static void op_N(void);
-static void op_S_ALL(void);
-static void op_S_POP(void);
-static void op_S_CLR(void);
-static void op_DEL_CLR(void);
-static void op_M_RESET(void);
-static void op_V(void);
-static void op_VV(void);
-static void op_P(void);
-static void op_P_INS(void);
-static void op_P_RM(void);
-static void op_P_PUSH(void);
-static void op_P_POP(void);
-static void op_PN(void);
-static void op_TR_PULSE(void);
-static void op_II(void);
-static void op_RSH(void);
-static void op_LSH(void);
-static void op_S_L(void);
-static void op_CV_SET(void);
-static void op_EXP(void);
-static void op_ABS(void);
-static void op_AND(void);
-static void op_OR(void);
-static void op_XOR(void);
-static void op_JI(void);
-static void op_SCRIPT(void);
-static void op_KILL(void);
-static void op_MUTE(void);
-static void op_UNMUTE(void);
-static void op_SCALE(void);
-static void op_STATE(void);
-static void op_ER(void);
+static void op_RAND(teletype_t* t);
+static void op_RRAND(teletype_t* t);
+static void op_TOSS(teletype_t* t);
+static void op_QT(teletype_t* t);
+static void op_AVG(teletype_t* t);
+static void op_NZ(teletype_t* t);
+static void op_EZ(teletype_t* t);
+static void op_TR_TOG(teletype_t* t);
+static void op_N(teletype_t* t);
+static void op_S_ALL(teletype_t* t);
+static void op_S_POP(teletype_t* t);
+static void op_S_CLR(teletype_t* t);
+static void op_DEL_CLR(teletype_t* t);
+static void op_M_RESET(teletype_t* t);
+static void op_V(teletype_t* t);
+static void op_VV(teletype_t* t);
+static void op_P(teletype_t* t);
+static void op_P_INS(teletype_t* t);
+static void op_P_RM(teletype_t* t);
+static void op_P_PUSH(teletype_t* t);
+static void op_P_POP(teletype_t* t);
+static void op_PN(teletype_t* t);
+static void op_TR_PULSE(teletype_t* t);
+static void op_II(teletype_t* t);
+static void op_RSH(teletype_t* t);
+static void op_LSH(teletype_t* t);
+static void op_S_L(teletype_t* t);
+static void op_CV_SET(teletype_t* t);
+static void op_EXP(teletype_t* t);
+static void op_ABS(teletype_t* t);
+static void op_AND(teletype_t* t);
+static void op_OR(teletype_t* t);
+static void op_XOR(teletype_t* t);
+static void op_JI(teletype_t* t);
+static void op_SCRIPT(teletype_t* t);
+static void op_KILL(teletype_t* t);
+static void op_MUTE(teletype_t* t);
+static void op_UNMUTE(teletype_t* t);
+static void op_SCALE(teletype_t* t);
+static void op_STATE(teletype_t* t);
+static void op_ER(teletype_t* t);
 
 
 #define MAKEOP(name, params, returns, doc) {#name, op_ ## name, params, returns, doc}
@@ -849,23 +838,7 @@ static const tele_op_t tele_ops[OPS] = {
 	MAKEOP(ER, 3, 1,"EUCLIDEAN RHYTHMS")
 };
 
-static void op_ADD() {
-	push(pop() + pop());
-}
-static void op_SUB() { 
-	push(pop() - pop());
-}
-static void op_MUL() { 
-	push(pop() * pop());
-}
-static void op_DIV() { 
-	push(pop() / pop());
-}
-// can be optimized:
-static void op_MOD() { 
-	push(pop() % pop());
-}
-static void op_RAND() { 
+static void op_RAND(teletype_t *t) { 
 	int16_t a = pop();
 	if(a == -1)
 		push(0);
@@ -873,7 +846,7 @@ static void op_RAND() {
 		push(rand() % (a+1));
 	
 }
-static void op_RRAND() {
+static void op_RRAND(teletype_t *t) {
 	int16_t a, b, min, max, range;
 	a = pop();
 	b = pop();
@@ -890,54 +863,10 @@ static void op_RRAND() {
 	else
 		push(rand() % range + min);
 }
-static void op_TOSS() {
+static void op_TOSS(teletype_t *t) {
 	push(rand() & 1);
 }
-static void op_MIN() { 
-	int16_t a, b;
-	a = pop();
-	b = pop();
-	if(b > a) push(a);
-	else push(b);
-}
-static void op_MAX() { 
-	int16_t a, b;
-	a = pop();
-	b = pop();
-	if(a > b) push(a);
-	else push(b);
-}
-static void op_LIM() {
-	int16_t a, b, i;
-	i = pop();
-	a = pop();
-	b = pop();
-	if(i < a) push(a);
-	else if(i > b) push(b);
-	else push(i);
-}
-static void op_WRAP() {
-	int16_t a, b, i, c;
-	i = pop();
-	a = pop();
-	b = pop();
-	if(a < b) {
-		c = b - a + 1;
-		while(i >= b)
-			i -= c;
-		while(i < a)
-			i += c;
-	}
-	else {
-		c = a - b + 1;
-		while(i >= a)
-			i -= c;
-		while(i < b)
-			i += c;
-	}
-	push(i);
-}
-static void op_QT() {
+static void op_QT(teletype_t *t) {
 	// this rounds negative numbers rather than quantize (choose closer)
 	int16_t a, b, c, d, e;
 	b = pop();
@@ -950,28 +879,16 @@ static void op_QT() {
 	if(abs(b-d) < abs(b-e)) push(d);
 	else push(e);
 }
-static void op_AVG() {
+static void op_AVG(teletype_t *t) {
 	push((pop() + pop()) >> 1);
 }
-static void op_EQ() { 
-	push(pop() == pop());
-}
-static void op_NE() {
-	push(pop() != pop());
-}
-static void op_LT() { 
-	push(pop() < pop());
-}
-static void op_GT() { 
-	push(pop() > pop());
-}
-static void op_NZ() { 
+static void op_NZ(teletype_t *t) { 
 	push(pop() != 0);
 }
-static void op_EZ() { 
+static void op_EZ(teletype_t *t) { 
 	push(pop() == 0);
 }
-static void op_TR_TOG() {
+static void op_TR_TOG(teletype_t *t) {
 	int16_t a = pop();
 	// saturate and shift
 	if(a < 1) a = 1;
@@ -981,7 +898,7 @@ static void op_TR_TOG() {
 	else tele_arrays[0].v[a] = 1;
 	update_tr(a,tele_arrays[0].v[a]);
 }
-static void op_N() { 
+static void op_N(teletype_t *t) { 
 	int16_t a = pop();
 
 	if(a < 0) {
@@ -994,13 +911,13 @@ static void op_N() {
 		push(table_n[a]);
 	}
 }
-static void op_S_ALL() {
+static void op_S_ALL(teletype_t *t) {
 	for(int16_t i = 0;i<tele_stack_top;i++)
 		process(&tele_stack[tele_stack_top-i-1]);
 	tele_stack_top = 0;
 	(*update_s)(0);
 }
-static void op_S_POP() {
+static void op_S_POP(teletype_t *t) {
 	if(tele_stack_top) {
 		tele_stack_top--;
 		process(&tele_stack[tele_stack_top]);
@@ -1008,17 +925,17 @@ static void op_S_POP() {
 			(*update_s)(0);
 	}
 }
-static void op_S_CLR() {
+static void op_S_CLR(teletype_t *t) {
 	tele_stack_top = 0;
 	(*update_s)(0);
 }
-static void op_DEL_CLR() {
+static void op_DEL_CLR(teletype_t *t) {
 	clear_delays();
 }
-static void op_M_RESET() {
+static void op_M_RESET(teletype_t *t) {
 	(*update_metro)(tele_vars[V_M].v, tele_vars[V_M_ACT].v, 1);
 }
-static void op_V() {
+static void op_V(teletype_t *t) {
 	int16_t a = pop();
 	if(a > 10) a = 10;
 	else if(a < -10) a = -10;
@@ -1030,7 +947,7 @@ static void op_V() {
 	else 
 		push(table_v[a]);
 }
-static void op_VV() {
+static void op_VV(teletype_t *t) {
 	uint8_t negative = 1;
 	int16_t a = pop();
 	if(a < 0) {
@@ -1041,7 +958,7 @@ static void op_VV() {
 
 	push(negative * (table_v[a/100] + table_vv[a%100]));
 }
-static void op_P() {
+static void op_P(teletype_t *t) {
 	int16_t a, b;
 	a = pop();
 	if(a < 0) {
@@ -1061,7 +978,7 @@ static void op_P() {
 		push(tele_patterns[pn].v[a]);
 	}
 }
-static void op_P_INS() {
+static void op_P_INS(teletype_t *t) {
 	int16_t a, b, i;
 	a = pop();
 	b = pop();
@@ -1084,7 +1001,7 @@ static void op_P_INS() {
 	tele_patterns[pn].v[a] = b;
 	(*update_pi)();
 }
-static void op_P_RM() {
+static void op_P_RM(teletype_t *t) {
 	int16_t a, i;
 	a = pop();
 
@@ -1106,7 +1023,7 @@ static void op_P_RM() {
 	else push(0);
 	(*update_pi)();
 }
-static void op_P_PUSH() {
+static void op_P_PUSH(teletype_t *t) {
 	int16_t a;
 	a = pop();
 
@@ -1116,7 +1033,7 @@ static void op_P_PUSH() {
 		(*update_pi)();
 	}
 }
-static void op_P_POP() {
+static void op_P_POP(teletype_t *t) {
 	if(tele_patterns[pn].l > 0) {
 		tele_patterns[pn].l--;
  		push(tele_patterns[pn].v[tele_patterns[pn].l]);
@@ -1124,7 +1041,7 @@ static void op_P_POP() {
 	}
 	else push(0);
 }
-static void op_PN() {
+static void op_PN(teletype_t *t) {
 	int16_t a, b, c;
 	a = pop();
 	b = pop();
@@ -1149,7 +1066,7 @@ static void op_PN() {
 		push(tele_patterns[a].v[b]);
 	}
 }
-static void op_TR_PULSE() {
+static void op_TR_PULSE(teletype_t *t) {
 	int16_t a = pop();
 	// saturate and shift
 	if(a < 1) a = 1;
@@ -1161,21 +1078,21 @@ static void op_TR_PULSE() {
 	tr_pulse[a] = time; // set time
 	update_tr(a,tele_arrays[0].v[a]);
 }
-static void op_II() {
+static void op_II(teletype_t *t) {
 	int16_t a = pop();
 	int16_t b = pop();
 	update_ii(a,b);
 }
-static void op_RSH() { 
+static void op_RSH(teletype_t *t) { 
 	push(pop() >> pop());
 }
-static void op_LSH() { 
+static void op_LSH(teletype_t *t) { 
 	push(pop() << pop());
 }
-static void op_S_L() { 
+static void op_S_L(teletype_t *t) { 
 	push(tele_stack_top);
 }
-static void op_CV_SET() {
+static void op_CV_SET(teletype_t *t) {
 	int16_t a = pop();
 	int16_t b = pop();
 	// saturate and shift
@@ -1187,7 +1104,7 @@ static void op_CV_SET() {
 	tele_arrays[1].v[a] = b;
 	(*update_cv)(a, b, 0);
 }
-static void op_EXP() {
+static void op_EXP(teletype_t *t) {
 	int16_t a = pop();
 	if(a > 16383) a = 16383;
 	else if(a < -16383) a = -16383;
@@ -1201,7 +1118,7 @@ static void op_EXP() {
 	else 
 		push(table_exp[a]);
 }
-static void op_ABS() {
+static void op_ABS(teletype_t *t) {
 	int16_t a = pop();
 
 	if(a < 0)
@@ -1209,31 +1126,31 @@ static void op_ABS() {
 	else 
 		push(a);
 }
-static void op_AND() {
+static void op_AND(teletype_t *t) {
 	push(pop() & pop());
 }
-static void op_OR() {
+static void op_OR(teletype_t *t) {
 	push(pop() | pop());
 }
-static void op_XOR() {
+static void op_XOR(teletype_t *t) {
 	push(pop() ^ pop());
 }
-static void op_JI() { 
+static void op_JI(teletype_t *t) { 
 	uint32_t ji = (((pop()<<8) / pop()) * 1684) >> 8;
 	while(ji > 1683)
 		ji >>= 1;
 	push(ji);
 }
-static void op_SCRIPT() {
+static void op_SCRIPT(teletype_t *t) {
 	uint16_t a = pop();
 	if(a > 0 && a < 9)
 		(*run_script)(a);
 }
-static void op_KILL() {
+static void op_KILL(teletype_t *t) {
 	clear_delays();
 	(*update_kill)();
 }
-static void op_MUTE() {
+static void op_MUTE(teletype_t *t) {
 	int16_t a;
 	a = pop();
 
@@ -1241,7 +1158,7 @@ static void op_MUTE() {
 		(*update_mute)(a-1,0);
 	}
 }
-static void op_UNMUTE() {
+static void op_UNMUTE(teletype_t *t) {
 	int16_t a;
 	a = pop();
 
@@ -1249,7 +1166,7 @@ static void op_UNMUTE() {
 		(*update_mute)(a-1,1);
 	}
 }
-static void op_SCALE() {
+static void op_SCALE(teletype_t *t) {
 	int16_t a, b, x, y, i;
 	a = pop();
 	b = pop();
@@ -1259,7 +1176,7 @@ static void op_SCALE() {
 
 	push((i-a) * (y-x) / (b-a) + x);
 }
-static void op_STATE() {
+static void op_STATE(teletype_t *t) {
 	int16_t a = pop();
 	a--;
 	if(a<0) a=0;
@@ -1269,7 +1186,7 @@ static void op_STATE() {
 	push(input_states[a]);	
 }
 
-static void op_ER() {
+static void op_ER(teletype_t *t) {
 	int16_t fill = pop();
 	int16_t len = pop();
 	int16_t step = pop();
@@ -1539,7 +1456,7 @@ void process(tele_command_t *c) {
 		if(c->data[n].t == NUMBER)
 			push(c->data[n].v);
 		else if(c->data[n].t == OP)
-			tele_ops[c->data[n].v].func();
+			tele_ops[c->data[n].v].func(&state);
 		else if(c->data[n].t == MOD)
 			tele_mods[c->data[n].v].func(c);
 		else if(c->data[n].t == VAR) {
@@ -1583,9 +1500,9 @@ void process(tele_command_t *c) {
 	if(tt_stack_size(&state) > 0) {
 		output = pop();
 		output_new++;
-		// sprintf(dbg,"\r\n>>> %d", output);
-		// DBG
-		// to_v(output);
+		sprintf(dbg,"\r\n>>> %d", output);
+		DBG
+		to_v(output);
 	}
 }
 

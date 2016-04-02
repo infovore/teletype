@@ -3,6 +3,7 @@ CFLAGS=-g -Wall -I. -I.. -I../../libavr32/src -DSIM
 DEPS =
 OBJ = tt.o ../state.o ../teletype.o ../table.o \
 	../euclidean/euclidean.o ../euclidean/data.o \
+	../ops/maths.o \
 	../../libavr32/src/util.o
 
 %.o: %.c $(DEPS)
@@ -15,4 +16,5 @@ clean:
 	rm *.o
 	rm ../*.o
 	rm ../euclidean/*.o
+	rm ../ops/*.o
 	rm ../../libavr32/src/*.o

@@ -76,14 +76,6 @@ typedef struct {
 } tele_mod_t;
 
 typedef struct {
-	const char *name;
-	void (*func)(void);
-	char params;
-	int8_t returns;
-	const char* doc;
-} tele_op_t;
-
-typedef struct {
 	int16_t i;
 	uint16_t l;
 	uint16_t wrap;
