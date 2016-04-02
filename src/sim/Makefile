@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-g -Wall -I. -I.. -I../../libavr32/src -DSIM
 DEPS =
-OBJ = tt.o ../teletype.o ../table.o \
+OBJ = tt.o ../state.o ../teletype.o ../table.o \
 	../euclidean/euclidean.o ../euclidean/data.o \
 	../../libavr32/src/util.o
 

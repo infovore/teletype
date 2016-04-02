@@ -6,7 +6,6 @@
 #define SCRIPT_MAX_COMMANDS 6
 #define SCRIPT_MAX_COMMANDS_ 5
 #define COMMAND_MAX_LENGTH 12
-#define STACK_SIZE 8
 #define TELE_STACK_SIZE 8
 #define TELE_D_SIZE 8
 
