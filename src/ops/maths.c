@@ -34,22 +34,6 @@ void op_LSH(teletype_t *t) {
 }
 
 
-void op_EQ(teletype_t *t) {
-	tt_push(t, tt_pop(t) == tt_pop(t));
-}
-
-void op_NE(teletype_t *t) {
-	tt_push(t, tt_pop(t) != tt_pop(t));
-}
-
-void op_LT(teletype_t *t) {
-	tt_push(t, tt_pop(t) < tt_pop(t));
-}
-
-void op_GT(teletype_t *t) {
-	tt_push(t, tt_pop(t) > tt_pop(t));
-}
-
 void op_MIN(teletype_t *t) {
 	int16_t a = tt_pop(t);
 	int16_t b = tt_pop(t);

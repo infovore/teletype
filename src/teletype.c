@@ -10,6 +10,7 @@
 #include "util.h"
 #include "ii.h"
 #include "ops/op.h"
+#include "ops/logic.h"
 #include "ops/maths.h"
 #include "ops/random.h"
 #include "euclidean/euclidean.h"
@@ -736,8 +737,6 @@ void mod_L(tele_command_t *c) {
 /////////////////////////////////////////////////////////////////
 // OPS //////////////////////////////////////////////////////////
 
-static void op_NZ(teletype_t* t);
-static void op_EZ(teletype_t* t);
 static void op_TR_TOG(teletype_t* t);
 static void op_N(teletype_t* t);
 static void op_S_ALL(teletype_t* t);
@@ -759,9 +758,6 @@ static void op_S_L(teletype_t* t);
 static void op_CV_SET(teletype_t* t);
 static void op_EXP(teletype_t* t);
 static void op_ABS(teletype_t* t);
-static void op_AND(teletype_t* t);
-static void op_OR(teletype_t* t);
-static void op_XOR(teletype_t* t);
 static void op_JI(teletype_t* t);
 static void op_SCRIPT(teletype_t* t);
 static void op_KILL(teletype_t* t);
@@ -832,12 +828,6 @@ static const tele_op_t tele_ops[OPS] = {
 	MAKEOP(ER, 3, 1,"EUCLIDEAN RHYTHMS")
 };
 
-static void op_NZ(teletype_t *t) { 
-	push(pop() != 0);
-}
-static void op_EZ(teletype_t *t) { 
-	push(pop() == 0);
-}
 static void op_TR_TOG(teletype_t *t) {
 	int16_t a = pop();
 	// saturate and shift
@@ -1069,15 +1059,6 @@ static void op_ABS(teletype_t *t) {
 		push(-a);
 	else 
 		push(a);
-}
-static void op_AND(teletype_t *t) {
-	push(pop() & pop());
-}
-static void op_OR(teletype_t *t) {
-	push(pop() | pop());
-}
-static void op_XOR(teletype_t *t) {
-	push(pop() ^ pop());
 }
 static void op_JI(teletype_t *t) { 
 	uint32_t ji = (((pop()<<8) / pop()) * 1684) >> 8;

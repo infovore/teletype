@@ -68,6 +68,7 @@ CSRCS = \
        ../src/state.c    \
        ../src/table.c    \
        ../src/teletype.c    \
+       ../src/ops/logic.c    \
        ../src/ops/maths.c    \
        ../src/ops/random.c    \
        ../src/euclidean/euclidean.c    \
