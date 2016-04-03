@@ -3,7 +3,7 @@ CFLAGS=-g -Wall -I. -I.. -I../../libavr32/src -DSIM
 DEPS =
 OBJ = tt.o ../state.o ../teletype.o ../table.o \
 	../euclidean/euclidean.o ../euclidean/data.o \
-	../ops/maths.o \
+	../ops/logic.c ../ops/maths.o ../ops/random.c \
 	../../libavr32/src/util.o
 
 %.o: %.c $(DEPS)
